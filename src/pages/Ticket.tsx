@@ -51,9 +51,11 @@ const TicketPage = () => {
   const generateTicket = (category: WindowCategory) => {
     const savedTickets = localStorage.getItem('queueTickets');
     const savedCounter = localStorage.getItem('queueCounter');
+    const savedCompany = localStorage.getItem('queueCompany');
     
     let tickets: Ticket[] = [];
     let counter = 1;
+    let prefix = 'T';
     
     if (savedTickets) {
       const parsed = JSON.parse(savedTickets);
@@ -67,8 +69,13 @@ const TicketPage = () => {
       counter = parseInt(savedCounter);
     }
 
+    if (savedCompany) {
+      const companyData = JSON.parse(savedCompany);
+      prefix = companyData.ticketPrefix || 'T';
+    }
+
     const newTicket: Ticket = {
-      id: `T${counter}`,
+      id: `${prefix}${counter}`,
       number: counter,
       createdAt: new Date(),
       status: 'waiting',

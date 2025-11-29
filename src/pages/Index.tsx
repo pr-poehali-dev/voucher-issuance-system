@@ -20,6 +20,7 @@ interface Ticket {
 interface Company {
   name: string;
   logoUrl: string;
+  ticketPrefix: string;
 }
 
 interface WindowCategory {
@@ -37,7 +38,7 @@ const Index = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   
-  const [company, setCompany] = useState<Company>({ name: '', logoUrl: '' });
+  const [company, setCompany] = useState<Company>({ name: '', logoUrl: '', ticketPrefix: 'T' });
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [ticketCounter, setTicketCounter] = useState(1);
   const [view, setView] = useState<'admin' | 'display'>('admin');
@@ -47,6 +48,7 @@ const Index = () => {
   const [newWindowName, setNewWindowName] = useState('');
   const [newWindowNumber, setNewWindowNumber] = useState('');
   const [isAddWindowOpen, setIsAddWindowOpen] = useState(false);
+  const [isEditCompanyOpen, setIsEditCompanyOpen] = useState(false);
   
   const displayUrl = `${window.location.origin}/display`;
   const publicUrl = `${window.location.origin}/ticket`;
@@ -133,7 +135,24 @@ const Index = () => {
 
   const handleCompanySetup = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!company.ticketPrefix) {
+      setCompany(prev => ({ ...prev, ticketPrefix: 'T' }));
+    }
     setCompanySetup(true);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('queueAuth');
+    setIsAuthenticated(false);
+    setCompanySetup(false);
+  };
+
+  const handleEditCompany = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!company.ticketPrefix) {
+      setCompany(prev => ({ ...prev, ticketPrefix: 'T' }));
+    }
+    setIsEditCompanyOpen(false);
   };
 
   const addWindow = () => {
@@ -156,7 +175,7 @@ const Index = () => {
 
   const createTicket = () => {
     const newTicket: Ticket = {
-      id: `T${ticketCounter}`,
+      id: `${company.ticketPrefix}${ticketCounter}`,
       number: ticketCounter,
       createdAt: new Date(),
       status: 'waiting',
@@ -326,6 +345,20 @@ const Index = () => {
                   required
                 />
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="ticketPrefix">Префикс талона</Label>
+                <Input
+                  id="ticketPrefix"
+                  value={company.ticketPrefix}
+                  onChange={(e) => setCompany({ ...company, ticketPrefix: e.target.value })}
+                  placeholder="T"
+                  maxLength={10}
+                  required
+                />
+                <p className="text-xs text-muted-foreground">
+                  Например: T, M, А. Талон будет: {company.ticketPrefix || 'T'}1, {company.ticketPrefix || 'T'}2...
+                </p>
+              </div>
               <Button type="submit" className="w-full">
                 Сохранить
               </Button>
@@ -348,9 +381,69 @@ const Index = () => {
               <h1 className="text-2xl font-bold">Панель управления</h1>
             </div>
           </div>
-          <div className="text-right">
-            <div className="text-xl font-semibold">{getMoscowTime()}</div>
-            <div className="text-xs text-muted-foreground">Московское время</div>
+          <div className="flex items-center gap-2">
+            <div className="text-right mr-3">
+              <div className="text-xl font-semibold">{getMoscowTime()}</div>
+              <div className="text-xs text-muted-foreground">Московское время</div>
+            </div>
+            <Dialog open={isEditCompanyOpen} onOpenChange={setIsEditCompanyOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-2">
+                  <Icon name="Settings" size={16} />
+                  Настройки
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Настройки компании</DialogTitle>
+                  <DialogDescription>Изменить данные организации</DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleEditCompany} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="editCompanyName">Название компании</Label>
+                    <Input
+                      id="editCompanyName"
+                      value={company.name}
+                      onChange={(e) => setCompany({ ...company, name: e.target.value })}
+                      placeholder="ООО «Название»"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="editLogoUrl">URL логотипа</Label>
+                    <Input
+                      id="editLogoUrl"
+                      type="url"
+                      value={company.logoUrl}
+                      onChange={(e) => setCompany({ ...company, logoUrl: e.target.value })}
+                      placeholder="https://example.com/logo.png"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="editTicketPrefix">Префикс талона</Label>
+                    <Input
+                      id="editTicketPrefix"
+                      value={company.ticketPrefix}
+                      onChange={(e) => setCompany({ ...company, ticketPrefix: e.target.value })}
+                      placeholder="T"
+                      maxLength={10}
+                      required
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Например: T, M, А. Талон будет: {company.ticketPrefix || 'T'}1, {company.ticketPrefix || 'T'}2...
+                    </p>
+                  </div>
+                  <Button type="submit" className="w-full">
+                    Сохранить
+                  </Button>
+                </form>
+              </DialogContent>
+            </Dialog>
+            <Button variant="destructive" size="sm" onClick={handleLogout} className="gap-2">
+              <Icon name="LogOut" size={16} />
+              Выйти
+            </Button>
           </div>
         </div>
 

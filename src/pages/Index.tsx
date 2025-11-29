@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -31,14 +31,56 @@ const Index = () => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [ticketCounter, setTicketCounter] = useState(1);
   const [view, setView] = useState<'admin' | 'display'>('admin');
+  const [showLinkCopied, setShowLinkCopied] = useState(false);
+  const displayUrl = `${window.location.origin}/display`;
 
   useEffect(() => {
+    const savedAuth = localStorage.getItem('queueAuth');
+    const savedCompany = localStorage.getItem('queueCompany');
+    const savedTickets = localStorage.getItem('queueTickets');
+    const savedCounter = localStorage.getItem('queueCounter');
+
+    if (savedAuth) setIsAuthenticated(true);
+    if (savedCompany) {
+      const parsed = JSON.parse(savedCompany);
+      setCompany(parsed);
+      setCompanySetup(true);
+    }
+    if (savedTickets) {
+      const parsed = JSON.parse(savedTickets);
+      setTickets(parsed.map((t: any) => ({
+        ...t,
+        createdAt: new Date(t.createdAt)
+      })));
+    }
+    if (savedCounter) setTicketCounter(parseInt(savedCounter));
+
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
 
     return () => clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      localStorage.setItem('queueAuth', 'true');
+    }
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (companySetup) {
+      localStorage.setItem('queueCompany', JSON.stringify(company));
+    }
+  }, [company, companySetup]);
+
+  useEffect(() => {
+    localStorage.setItem('queueTickets', JSON.stringify(tickets));
+  }, [tickets]);
+
+  useEffect(() => {
+    localStorage.setItem('queueCounter', ticketCounter.toString());
+  }, [ticketCounter]);
 
   const getMoscowTime = () => {
     return currentTime.toLocaleString('ru-RU', {
@@ -75,9 +117,51 @@ const Index = () => {
   };
 
   const callTicket = (id: string) => {
+    playNotificationSound();
     setTickets(prev => prev.map(t => 
       t.id === id ? { ...t, status: 'called' } : t
     ));
+  };
+
+  const playNotificationSound = () => {
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    oscillator.frequency.value = 800;
+    oscillator.type = 'sine';
+    
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.5);
+
+    setTimeout(() => {
+      const oscillator2 = audioContext.createOscillator();
+      const gainNode2 = audioContext.createGain();
+      
+      oscillator2.connect(gainNode2);
+      gainNode2.connect(audioContext.destination);
+      
+      oscillator2.frequency.value = 1000;
+      oscillator2.type = 'sine';
+      
+      gainNode2.gain.setValueAtTime(0.3, audioContext.currentTime);
+      gainNode2.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+      
+      oscillator2.start(audioContext.currentTime);
+      oscillator2.stop(audioContext.currentTime + 0.5);
+    }, 200);
+  };
+
+  const copyDisplayLink = () => {
+    navigator.clipboard.writeText(displayUrl);
+    setShowLinkCopied(true);
+    setTimeout(() => setShowLinkCopied(false), 2000);
   };
 
   const activeTickets = tickets.filter(t => t.status === 'waiting').slice(0, 5);
@@ -293,15 +377,44 @@ const Index = () => {
           </div>
         </div>
 
-        <div className="mb-4 flex gap-2">
-          <Button onClick={() => setView('display')} className="gap-2">
-            <Icon name="Monitor" size={18} />
-            Открыть экран очереди
-          </Button>
-          <Button onClick={createTicket} className="gap-2">
-            <Icon name="Plus" size={18} />
-            Создать талон
-          </Button>
+        <div className="mb-4 space-y-3">
+          <div className="flex gap-2">
+            <Button onClick={createTicket} className="gap-2">
+              <Icon name="Plus" size={18} />
+              Создать талон
+            </Button>
+          </div>
+          
+          <Card className="bg-muted/50">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex-1">
+                  <Label className="text-xs text-muted-foreground">Ссылка на экран очереди</Label>
+                  <div className="mt-1 font-mono text-sm break-all">{displayUrl}</div>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={copyDisplayLink}
+                    className="gap-2 whitespace-nowrap"
+                  >
+                    <Icon name={showLinkCopied ? "Check" : "Copy"} size={16} />
+                    {showLinkCopied ? 'Скопировано' : 'Копировать'}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => window.open('/display', '_blank')}
+                    className="gap-2 whitespace-nowrap"
+                  >
+                    <Icon name="ExternalLink" size={16} />
+                    Открыть
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         <Tabs defaultValue="tickets" className="w-full">

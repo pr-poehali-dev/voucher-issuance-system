@@ -7,6 +7,8 @@ interface Ticket {
   number: number;
   createdAt: Date;
   status: 'waiting' | 'called';
+  category: string;
+  window?: number;
 }
 
 interface Company {
@@ -137,8 +139,11 @@ const Display = () => {
                       key={ticket.id}
                       className="bg-card border-2 border-border p-6 rounded-lg"
                     >
-                      <div className="text-5xl font-bold text-center">
+                      <div className="text-5xl font-bold text-center mb-2">
                         {ticket.id}
+                      </div>
+                      <div className="text-sm text-center text-muted-foreground">
+                        {ticket.category}
                       </div>
                     </div>
                   ))
@@ -166,9 +171,14 @@ const Display = () => {
                       key={ticket.id}
                       className="bg-primary text-primary-foreground p-6 rounded-lg animate-pulse"
                     >
-                      <div className="text-5xl font-bold text-center">
+                      <div className="text-5xl font-bold text-center mb-2">
                         {ticket.id}
                       </div>
+                      {ticket.window && (
+                        <div className="text-3xl font-bold text-center">
+                          Окно №{ticket.window}
+                        </div>
+                      )}
                     </div>
                   ))
                 )}

@@ -111,13 +111,11 @@ const Display = () => {
   return (
     <div className="min-h-screen bg-background p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            {company.logoUrl && (
-              <img src={company.logoUrl} alt="Logo" className="h-24 w-24 object-contain" />
-            )}
-          </div>
-          <div className="text-right">
+        <div className="mb-8 flex flex-col items-center">
+          {company.logoUrl && (
+            <img src={company.logoUrl} alt="Logo" className="h-32 w-32 object-contain mb-4" />
+          )}
+          <div className="text-center">
             <div className="text-2xl font-semibold">{getMoscowTime()}</div>
             <div className="text-sm text-muted-foreground">Московское время</div>
           </div>

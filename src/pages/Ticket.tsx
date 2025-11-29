@@ -136,12 +136,12 @@ const TicketPage = () => {
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
-            <div className="flex justify-center mb-4">
+            <div className="flex justify-center mb-6">
               {company.logoUrl ? (
-                <img src={company.logoUrl} alt={company.name} className="h-16 w-16 object-contain" />
+                <img src={company.logoUrl} alt="Logo" className="h-32 w-32 object-contain" />
               ) : (
-                <div className="w-16 h-16 bg-primary rounded-lg flex items-center justify-center">
-                  <Icon name="Ticket" className="text-primary-foreground" size={32} />
+                <div className="w-32 h-32 bg-primary rounded-lg flex items-center justify-center">
+                  <Icon name="Ticket" className="text-primary-foreground" size={64} />
                 </div>
               )}
             </div>
@@ -169,18 +169,15 @@ const TicketPage = () => {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <Card className="w-full max-w-2xl">
         <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
+          <div className="flex justify-center mb-6">
             {company.logoUrl ? (
-              <img src={company.logoUrl} alt={company.name} className="h-16 w-16 object-contain" />
+              <img src={company.logoUrl} alt="Logo" className="h-40 w-40 object-contain" />
             ) : (
-              <div className="w-16 h-16 bg-primary rounded-lg flex items-center justify-center">
-                <Icon name="Ticket" className="text-primary-foreground" size={32} />
+              <div className="w-32 h-32 bg-primary rounded-lg flex items-center justify-center">
+                <Icon name="Ticket" className="text-primary-foreground" size={64} />
               </div>
             )}
           </div>
-          <CardTitle className="text-2xl font-bold">
-            {company.name || 'Электронная очередь'}
-          </CardTitle>
           <CardDescription>Выберите категорию обслуживания</CardDescription>
         </CardHeader>
         <CardContent>
@@ -196,9 +193,9 @@ const TicketPage = () => {
                   key={window.id}
                   variant="outline"
                   onClick={() => setSelectedCategory(window)}
-                  className="h-24 flex flex-col items-center justify-center gap-2 text-lg"
+                  className="h-auto py-4 px-3 flex flex-col items-center justify-center gap-2 text-base break-words"
                 >
-                  <span className="font-semibold">{window.name}</span>
+                  <span className="font-semibold text-center break-words whitespace-normal">{window.name}</span>
                   <span className="text-2xl font-bold text-primary">№{window.windowNumber}</span>
                 </Button>
               ))}

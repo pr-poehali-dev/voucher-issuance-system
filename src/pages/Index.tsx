@@ -221,6 +221,19 @@ const Index = () => {
     setTimeout(() => setShowPublicLinkCopied(false), 2000);
   };
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = new Date().getTime();
+      setTickets(prev => prev.filter(t => {
+        if (t.status !== 'called') return true;
+        const calledTime = new Date(t.createdAt).getTime();
+        return (now - calledTime) < 30000;
+      }));
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   const activeTickets = tickets.filter(t => t.status === 'waiting').slice(0, 5);
   const calledTickets = tickets.filter(t => t.status === 'called').slice(0, 5);
   const historyTickets = tickets.slice(10);
@@ -329,11 +342,10 @@ const Index = () => {
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             {company.logoUrl && (
-              <img src={company.logoUrl} alt={company.name} className="h-12 w-12 object-contain" />
+              <img src={company.logoUrl} alt="Logo" className="h-16 w-16 object-contain" />
             )}
             <div>
-              <h1 className="text-2xl font-bold">{company.name}</h1>
-              <p className="text-sm text-muted-foreground">Панель управления</p>
+              <h1 className="text-2xl font-bold">Панель управления</h1>
             </div>
           </div>
           <div className="text-right">

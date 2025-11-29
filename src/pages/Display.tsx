@@ -101,7 +101,12 @@ const Display = () => {
   };
 
   const activeTickets = tickets.filter(t => t.status === 'waiting').slice(0, 5);
-  const calledTickets = tickets.filter(t => t.status === 'called').slice(0, 5);
+  const calledTickets = tickets.filter(t => {
+    if (t.status !== 'called') return false;
+    const now = new Date().getTime();
+    const calledTime = new Date(t.createdAt).getTime();
+    return (now - calledTime) < 30000;
+  }).slice(0, 5);
 
   return (
     <div className="min-h-screen bg-background p-8">
@@ -109,9 +114,8 @@ const Display = () => {
         <div className="mb-8 flex items-center justify-between">
           <div className="flex items-center gap-4">
             {company.logoUrl && (
-              <img src={company.logoUrl} alt={company.name} className="h-16 w-16 object-contain" />
+              <img src={company.logoUrl} alt="Logo" className="h-24 w-24 object-contain" />
             )}
-            <h1 className="text-3xl font-bold">{company.name || 'Электронная очередь'}</h1>
           </div>
           <div className="text-right">
             <div className="text-2xl font-semibold">{getMoscowTime()}</div>
@@ -143,7 +147,7 @@ const Display = () => {
                       <div className="text-5xl font-bold text-center mb-2">
                         {ticket.id}
                       </div>
-                      <div className="text-sm text-center text-muted-foreground">
+                      <div className="text-sm text-center text-muted-foreground break-words px-2">
                         {ticket.category}
                       </div>
                     </div>
@@ -181,7 +185,7 @@ const Display = () => {
                           Окно №{ticket.window}
                         </div>
                       )}
-                      <div className="text-sm text-center text-muted-foreground mt-2">
+                      <div className="text-sm text-center text-muted-foreground mt-2 break-words px-2">
                         {ticket.category}
                       </div>
                     </div>

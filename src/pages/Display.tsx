@@ -9,6 +9,7 @@ interface Ticket {
   status: 'waiting' | 'called';
   category: string;
   window?: number;
+  calledAt?: Date;
 }
 
 interface Company {
@@ -38,7 +39,8 @@ const Display = () => {
         const parsed = JSON.parse(savedTickets);
         const ticketsData = parsed.map((t: any) => ({
           ...t,
-          createdAt: new Date(t.createdAt)
+          createdAt: new Date(t.createdAt),
+          calledAt: t.calledAt ? new Date(t.calledAt) : undefined
         }));
         setTickets(ticketsData);
 
@@ -103,8 +105,9 @@ const Display = () => {
   const activeTickets = tickets.filter(t => t.status === 'waiting').slice(0, 5);
   const calledTickets = tickets.filter(t => {
     if (t.status !== 'called') return false;
+    if (!t.calledAt) return false;
     const now = new Date().getTime();
-    const calledTime = new Date(t.createdAt).getTime();
+    const calledTime = new Date(t.calledAt).getTime();
     return (now - calledTime) < 30000;
   }).slice(0, 5);
 

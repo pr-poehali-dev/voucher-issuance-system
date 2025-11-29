@@ -15,6 +15,7 @@ interface Ticket {
   status: 'waiting' | 'called';
   category: string;
   window?: number;
+  calledAt?: Date;
 }
 
 interface Company {
@@ -70,7 +71,8 @@ const Index = () => {
       const parsed = JSON.parse(savedTickets);
       setTickets(parsed.map((t: any) => ({
         ...t,
-        createdAt: new Date(t.createdAt)
+        createdAt: new Date(t.createdAt),
+        calledAt: t.calledAt ? new Date(t.calledAt) : undefined
       })));
     }
     if (savedCounter) setTicketCounter(parseInt(savedCounter));
@@ -84,7 +86,8 @@ const Index = () => {
         const parsed = JSON.parse(updatedTickets);
         setTickets(parsed.map((t: any) => ({
           ...t,
-          createdAt: new Date(t.createdAt)
+          createdAt: new Date(t.createdAt),
+          calledAt: t.calledAt ? new Date(t.calledAt) : undefined
         })));
       }
     }, 1000);
@@ -189,7 +192,7 @@ const Index = () => {
   const callTicket = (id: string, windowNum: number) => {
     playNotificationSound();
     setTickets(prev => prev.map(t => 
-      t.id === id ? { ...t, status: 'called', window: windowNum } : t
+      t.id === id ? { ...t, status: 'called', window: windowNum, calledAt: new Date() } : t
     ));
   };
 
@@ -245,7 +248,8 @@ const Index = () => {
       const now = new Date().getTime();
       setTickets(prev => prev.filter(t => {
         if (t.status !== 'called') return true;
-        const calledTime = new Date(t.createdAt).getTime();
+        if (!t.calledAt) return true;
+        const calledTime = new Date(t.calledAt).getTime();
         return (now - calledTime) < 30000;
       }));
     }, 1000);

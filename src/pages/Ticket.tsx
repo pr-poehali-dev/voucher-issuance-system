@@ -30,15 +30,22 @@ const TicketPage = () => {
   const [generatedTicket, setGeneratedTicket] = useState<Ticket | null>(null);
 
   useEffect(() => {
-    const savedCompany = localStorage.getItem('queueCompany');
-    const savedWindows = localStorage.getItem('queueWindows');
-    
-    if (savedCompany) {
-      setCompany(JSON.parse(savedCompany));
-    }
-    if (savedWindows) {
-      setWindows(JSON.parse(savedWindows));
-    }
+    const loadData = () => {
+      const savedCompany = localStorage.getItem('queueCompany');
+      const savedWindows = localStorage.getItem('queueWindows');
+      
+      if (savedCompany) {
+        setCompany(JSON.parse(savedCompany));
+      }
+      if (savedWindows) {
+        setWindows(JSON.parse(savedWindows));
+      }
+    };
+
+    loadData();
+    const interval = setInterval(loadData, 1000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const generateTicket = (category: WindowCategory) => {

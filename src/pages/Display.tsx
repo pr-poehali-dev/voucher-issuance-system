@@ -120,7 +120,7 @@ const Display = () => {
         </div>
 
         <div className="grid md:grid-cols-2 gap-8">
-          <Card className="border-2">
+          <Card className="border-2 animate-fade-in">
             <CardHeader className="bg-muted">
               <CardTitle className="text-2xl flex items-center gap-2">
                 <Icon name="Clock" size={28} />
@@ -134,10 +134,11 @@ const Display = () => {
                     Нет талонов в очереди
                   </div>
                 ) : (
-                  activeTickets.map((ticket) => (
+                  activeTickets.map((ticket, index) => (
                     <div
                       key={ticket.id}
-                      className="bg-card border-2 border-border p-6 rounded-lg"
+                      className="bg-card border-2 border-border p-6 rounded-lg animate-scale-in hover:scale-105 transition-transform duration-200"
+                      style={{ animationDelay: `${index * 0.1}s` }}
                     >
                       <div className="text-5xl font-bold text-center mb-2">
                         {ticket.id}
@@ -152,10 +153,10 @@ const Display = () => {
             </CardContent>
           </Card>
 
-          <Card className="border-2">
-            <CardHeader className="bg-primary text-primary-foreground">
+          <Card className="border-2 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+            <CardHeader className="bg-muted">
               <CardTitle className="text-2xl flex items-center gap-2">
-                <Icon name="User" size={28} />
+                <Icon name="Bell" size={28} />
                 Подойдите
               </CardTitle>
             </CardHeader>
@@ -166,19 +167,23 @@ const Display = () => {
                     Нет вызванных талонов
                   </div>
                 ) : (
-                  calledTickets.map((ticket) => (
+                  calledTickets.map((ticket, index) => (
                     <div
                       key={ticket.id}
-                      className="bg-primary text-primary-foreground p-6 rounded-lg animate-pulse"
+                      className="bg-primary/10 border-2 border-primary p-6 rounded-lg animate-glow"
+                      style={{ animationDelay: `${index * 0.1}s` }}
                     >
-                      <div className="text-5xl font-bold text-center mb-2">
+                      <div className="text-5xl font-bold text-center mb-3 text-primary animate-bounce-subtle">
                         {ticket.id}
                       </div>
                       {ticket.window && (
-                        <div className="text-3xl font-bold text-center">
+                        <div className="text-3xl font-bold text-center text-primary">
                           Окно №{ticket.window}
                         </div>
                       )}
+                      <div className="text-sm text-center text-muted-foreground mt-2">
+                        {ticket.category}
+                      </div>
                     </div>
                   ))
                 )}

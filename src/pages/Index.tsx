@@ -76,6 +76,15 @@ const Index = () => {
 
     const timer = setInterval(() => {
       setCurrentTime(new Date());
+      
+      const updatedTickets = localStorage.getItem('queueTickets');
+      if (updatedTickets) {
+        const parsed = JSON.parse(updatedTickets);
+        setTickets(parsed.map((t: any) => ({
+          ...t,
+          createdAt: new Date(t.createdAt)
+        })));
+      }
     }, 1000);
 
     return () => clearInterval(timer);
